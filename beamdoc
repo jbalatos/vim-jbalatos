@@ -1,0 +1,8 @@
+#! /bin/bash
+
+pandoc "$1" -o "$2" --pdf-engine=xelatex -t beamer \
+	-V theme:CambridgeUS -V colortheme:seagull \
+	-V fontsize:12pt -V linkcolor:blue -V aspectratio:169 \
+	-H $HOME/.config/pandoc/markdown_headers.tex \
+	--highlight-style $HOME/.config/pandoc/code_highlighting.theme \
+	-i -V slide_level:2 --toc --number-sections
