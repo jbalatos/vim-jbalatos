@@ -106,13 +106,12 @@ autocmd VimEnter * EnableCommenting
 autocmd BufEnter * let b:doxygen_in_out=1
 
 " COMPILATION
-autocmd BufEnter * :nmap <F12> :w <bar> make<CR>
+nmap <F12> :w <bar> make<CR>
 let g:tex_flavor = "xelatex"
 autocmd BufEnter *.tex :compiler tex
-autocmd BufEnter *.md :set makeprg=markdoc\ %\ %:r.pdf
 autocmd BufEnter *.py :compiler pyunit
 autocmd BufEnter *.cpp :set makeprg=g++\ %\ -o\ %:r\ -Wall\ -std=c++11\ -DLOCAL\ -g\ -O2
-nnoremap <F12> :w <bar> make <bar> !./%:r<CR>
+autocmd BufEnter *.cpp :nnoremap <F12> :w <bar> make <bar> !./%:r<CR>
 
 " FILE EXPLORER
 let g:netrw_liststyle = 3
@@ -134,6 +133,9 @@ autocmd BufEnter *.md :set conceallevel=2
 let g:vim_markdown_new_list_item_indent = 0
 let g:vim_markdown_auto_insert_bullets = 0
 let g:vim_markdown_math = 1
+command! Beamdoc set makeprg=beamdoc\ %\ %:r.pdf
+command! Markdoc set makeprg=markdoc\ %\ %:r.pdf
+autocmd FileType markdown :Markdoc
 
 " STATUSLINE
 autocmd VimEnter * SetStatusLine
