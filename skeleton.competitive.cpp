@@ -9,7 +9,7 @@ using namespace std;
 #define REV(a) (a).rbegin(), (a).rend()
 #define x first
 #define y second
-#define INF 1000000001
+#define INF 0xf5f5f5
 
 typedef long long ll;
 typedef pair<int, int> ii;
