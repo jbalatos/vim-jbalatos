@@ -1,94 +1,41 @@
+" PURE BASICS
 set nocompatible
-set wildmenu
-set encoding=utf-8
-set autoindent
+set mouse=a
+set noerrorbells
 set exrc
+set encoding=utf-8
+let mapleader=" "
+filetype plugin on
+nnoremap <silent> <leader>rc :tabe ~/.vim/vimrc<cr>
+
+" PLUGIN MANAGER {{{
+call plugin#SetupVimPlug()
+call plug#begin('~/.vim/plugged')
+Plug 'morhetz/gruvbox'
+Plug 'preservim/vim-markdown'
+Plug 'vim-scripts/OmniCppComplete'
+" Plug 'xavierd/clang_complete'
+call plug#end() " }}}
+
+" appearance
+set list
+set autoread
+set listchars=tab:\|\ 
 set cursorline
 set colorcolumn=80
-set noerrorbells
-set mouse=a
-set ttymouse=sgr
-set showcmd
-
-set autoread
-autocmd CursorHold * checktime
-
-syntax on
-filetype plugin on
-
-set noexpandtab
-set shiftwidth=8
-set tabstop=8
-set nowrap
+set background=dark
+set signcolumn=auto
 set scrolloff=4
+set noexpandtab
+set showcmd
+colorscheme gruvbox
 
-set incsearch
-set smartcase
-set showmatch
+" autoclose
+call autoclose#SetGenericAutoclose()
+autocmd BufEnter *.tex,*.markdown call autoclose#SetLatexAutoclose()
+autocmd BufLeave *.tex,*.markdown call autoclose#UnsetLatexAutoclose()
 
-set noswapfile
-set undofile
-set undodir=~/.vim/undodir
-
-set list
-set listchars=tab:\|\ 
-
-set splitright
-set splitbelow
-set foldmethod=marker
-
-" LINE NUMBERS
-set nu
-set rnu
-
-" GUI OPTIONS{{{
-if has('gui_running')
-	set guioptions-=T
-	set guioptions-=m
-	set guioptions-=r
-	set guioptions-=L
-	set guioptions-=e
-	set guioptions+=c
-
-	set guipty
-	set guifont=Source\ Code\ Pro\ Medium\ 14
-endif "}}}
-
-" PATHS FOR FUZZY FIND
-set path=/usr/include,$PWD/**
-set wildignore+=**/node_modules/**
-
-" VIM DIRECTORY
-let g:vimdir = split(&runtimepath, ',')[0]
-
-" PLUGINS
-call plug#begin()
-Plug 'morhetz/gruvbox'
-Plug 'maxmellon/vim-jsx-pretty'
-Plug 'leafOfTree/vim-vue-plugin'
-Plug 'xavierd/clang_complete'
-Plug 'preservim/tagbar'
-Plug 'xuhdev/vim-latex-live-preview'
-Plug 'preservim/vim-markdown'
-
-Plug $'{g:vimdir}/vim-plugins/autoclose'
-Plug $'{g:vimdir}/vim-plugins/comment'
-Plug $'{g:vimdir}/vim-plugins/statusline'
-Plug $'{g:vimdir}/vim-plugins/enclose'
-call plug#end()
-
-" AUTOCLOSE
-autocmd VimEnter * SetGenericAutoclose
-autocmd FileType html SetHTMLAutoclose
-autocmd FileType tex,markdown SetLatexAutoclose
-
-" AUTOCOMPLETTION
-set tags+=~/.vim/tags/cpp
-set completeopt=menuone,longest
-set shortmess+=c
-set pumheight=20
-
-" CLANG SETTINGS
+" c++ complete
 let g:clang_library_path='/usr/lib'
 let g:clang_complete_auto=1
 let g:clang_complete_copen=1
@@ -97,128 +44,132 @@ let g:clang_complete_macros=1
 autocmd FileType cpp :let g:clang_user_options = '-std=c++11'
 let g:clang_jumpto_declaration_key = ''
 
-" COLORSCHEME
-colo gruvbox
-set background=dark
 
-" COMMENTS
+" clipboard
+set clipboard+=unnamedplus
+nnoremap x "_x
+command! Clipboard !xclip < %
+function! Replace(...)
+	if a:0
+		let st='['
+		let end=']'
+	else
+		let st='<'
+		let end='>'
+	endif
+	execute $"norm! `{st}v`{end}\"_d"
+	norm! P
+endfunction
+nnoremap <silent> <leader>r :set opfunc=Replace<cr>g@
+vnoremap <silent> <leader>r :<C-U>call Replace()<cr>
+
+" commenting
+source ~/.vim/vim-plugins/comment.vim
 autocmd VimEnter * EnableCommenting
-autocmd BufEnter * let b:doxygen_in_out=1
 
-" COMPILATION
-nmap <F12> :w <bar> make<CR>
-let g:tex_flavor = "xelatex"
-autocmd BufEnter *.tex :compiler tex
-autocmd BufEnter *.py :compiler pyunit
-autocmd BufEnter *.cpp :set makeprg=g++\ %\ -o\ %:r\ -Wall\ -std=c++11\ -DLOCAL\ -g\ -O2
-autocmd BufEnter *.cpp :nnoremap <F12> :w <bar> make <bar> !./%:r<CR>
+" competitive programming
+function! OpenIO(vis)
+	let x=""
+	if a:vis == 1
+		let x = getline("'<")[getpos("'<")[2] - 1:getpos("'>")[2] - 1]
+	else
+		let x = input("Give input filename: ", expand("%:r") . ".in")
+	endif
+	let win = winnr()
+	execute $'40vs {x} | sp {reverse(substitute(reverse(x), "ni", "tuo", ""))}'
+	execute win .. "wincmd w"
+endfunction
+nnoremap <leader>io :call OpenIO(0)<CR>
+vnoremap <silent> <leader>io :<C-U> call OpenIO(1)<CR>
+command! Clipboard !xclip < %
 
-" FILE EXPLORER
-let g:netrw_liststyle = 3
-let g:netrw_banner = 0
-let g:netrw_browse_split = 4
-let g:netrw_winsize = 20
-nnoremap <Leader>f :Vex <CR>
+" compiling
+nmap <F12> :w <bar> make<cr>
+autocmd BufEnter *.cpp :set makeprg=g++\ %\ -o\ %:r\ -std=c++17\ -O2\ -DLOCAL\ -Wall\ -g
+autocmd BufEnter *.cpp :set makeprg=g++\ %\ -o\ %:r\ -std=c++17\ -O2\ -DLOCAL\ -Wall\ -g
+autocmd BufEnter *.cpp :nnoremap <F12> :w <bar> make <bar> !./%:r<cr>
+autocmd BufEnter *.md  :set makeprg=markdoc\ %\ %:r.pdf
 
-" GREP
+" enclose
+source ~/.vim/vim-plugins/enclose.vim
+
+" folding
+set foldmethod=marker
+
+" folder selection
+nnoremap <silent> <leader>cd :cd %:p:h<cr>
+
+" file explorer
+let g:netrw_winsize = 25
+let g:netrw_preview = 1
+let g:netrw_use_errorwindow = 0
+nnoremap <silent> <leader>ff :call explore#TryToRexplore()<cr>
+nnoremap <silent> <leader>vf :Vexplore<cr>
+
+" fuzzy finder
+set wildmenu
+set path+=**
+set wildignore=**/node_modules/**
+
+" grep
 if executable('rg')
     set grepprg=rg\ --color=never\ --vimgrep
 endif
 
-" MARKDOWN
-let g:vim_markdown_folding_disabled = 1
-let g:vim_markdown_no_default_key_mappings = 1
-let g:vim_markdown_fenced_languages = ['cpp', 'py=python', 'js=javascript', 'bash=sh', 'viml=vim']
-autocmd BufEnter *.md :set conceallevel=2
-let g:vim_markdown_new_list_item_indent = 0
-let g:vim_markdown_auto_insert_bullets = 0
-let g:vim_markdown_math = 1
-command! Beamdoc set makeprg=beamdoc\ %\ %:r.pdf
-command! Markdoc set makeprg=markdoc\ %\ %:r.pdf
-autocmd FileType markdown :Markdoc
+" keymaps
+cnoremap bda bufdo bd
+nnoremap <leader>+ <C-a>
+nnoremap <leader>- <C-x>
 
-" STATUSLINE
-autocmd VimEnter * SetStatusLine
+" line numbers - wrapping
+set relativenumber
+set number
+set nowrap
 
-" TAGBAR SETTINGS
-nnoremap <leader>tt :TagbarToggle<CR>
+" markdown
+source ~/.vim/vim-plugins/markdown.vim
 
-" -----SHORTCUTS-----
+" notes
+nnoremap <leader>ni :e $HOME/Notes/index.md<cr>:cd %:p:h<cr>
 
-" SETTING WORKING DIRECTORY
-autocmd VimEnter :lcd %:p:h
-nnoremap <silent> <leader>cd :cd %:p:h<CR>:pwd<CR>
+" search settings
+set incsearch
+set ignorecase
+set smartcase
+set showmatch
 
-" GRACEFULLY EXIT
-nnoremap <leader>q  :qa
+" snippets
+nnoremap <leader>sn :-1read ~/.vim/skeleton.
 
-" TEXT WRAPPING
-autocmd FileType tex,markdown :set wrap
+" statusline
+call statusline#SetStatusLine()
+
+" swap
+set noswapfile
+set undofile
+set undodir=~/.vim/undodir
+
+" tabs & indentation
+set tabstop=8
+set smartindent
+
+" tags
+autocmd BufEnter *.cpp,*.h,*.hpp :command! MakeTags exec "!ctags -R --c++-kinds=+p --fields=+iaS --extras=+q ."
+set tags+=~/.vim/tags/cpp
+set completeopt=menuone,longest
+set shortmess+=c
+set pumheight=20
+
+" windows / tabs
+set splitbelow
+set splitright
+nnoremap gp gT
+nnoremap <silent> <C-w>\| <C-w>v
+nnoremap <silent> <C-w>- <C-w>s
+source ~/.vim/autoload/tmux.vim
+source ~/.vim/vim-plugins/maximize.vim
+
+" wrapping
+autocmd FileType tex :set wrap
 autocmd FileType tex,markdown :set textwidth=80
 autocmd FileType tex,markdown :set formatoptions+=w
-
-" MARKDOWN
-autocmd FileType markdown :inoremap ```<CR> ```<CR>```<C-C><C-C>kA
-
-" LATEX
-autocmd FileType tex :nnoremap <F12> :w <bar> make<CR>
-autocmd FileType tex :nnoremap <leader>p :LLPStartPreview<CR>
-
-" FILE HANDLING
-function! SearchOldFiles()
-	let x = input("Give search param: ", "'/'")
-	execute 'normal! :<Esc>'
-	execute $'browse filter {x} oldfiles'
-endfunction
-nnoremap <leader>oo :ls<CR>:b<Space>
-nnoremap <leader>or :call SearchOldFiles()<CR>
-cnoremap bda bufdo bd
-
-" COMPETITIVE PROGRAMMING MACROS
-nnoremap <leader>sn :-1read ~/.vim/skeleton.
-function! OpenIO()
-	let x=input("Give input filename: ", expand("%:r") . ".in")
-	execute $'40vs {x} | sp {reverse(substitute(reverse(x), "ni", "tuo", ""))}'
-endfunction
-nnoremap <leader>io :call OpenIO()<CR>
-command! Clipboard !xclip < %
-
-" CONFIG RELOADING
-nnoremap <silent> <leader>hr :exec $'so {g:vimdir}/vimrc'<CR>
-
-" TERMINAL 
-nnoremap <leader>tc :term ++curwin<CR>
-nnoremap <leader>tn :tabnew <bar> term ++curwin<CR>
-
-" SET FILETYPE FOR EJS
-autocmd BufEnter *.ejs :set ft=html
-
-" GO TO 
-function! GoToDefinitions()"{{{
-	if &ft == 'cpp' || &ft == 'c'
-		let @/ = 'int[\ |\n]main'
-		normal! ggn2k
-	elseif &ft == 'javascript'
-		let @/ = 'import\|require'
-		normal! ggn
-	endif
-endfunction
-function! GoToMain()
-	if &ft == 'cpp' || &ft == 'c'
-		let @/ = 'int[\ |\n]main'
-		normal! ggn$
-	endif
-endfunction"}}}
-
-nnoremap <silent> <leader>gd :call GoToDefinitions()<CR>
-nnoremap <silent> <leader>gm :call GoToMain()<CR>
-
-" CREATE TAGS FOR PROJECT
-command! NodeTagConfig !cp ~/.vim/skeleton.nodejs.ctags ./.ctags && ctags -R .
-nnoremap <silent> <leader>ct :!echo "CREATING TAGS..." && ctags -R .<CR>
-
-" SETUP VERTICAL QUICKFIX / SEARCH
-command! CopenVert botright vertical copen | vertical resize 50
-nnoremap <leader>co :CopenVert<CR>
-command! -nargs=1 Search grep! "<args>" ** | CopenVert
-nnoremap <leader>/ :Search 

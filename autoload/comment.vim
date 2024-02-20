@@ -93,7 +93,7 @@ function! comment#CreateDoxyFunction()
 	endwhile
 
 	let res =<< trim eval END
-		/** @fn {l:doc.brief}
+		/**
 		 *  @brief Brief goes here.
 		 *
 		 *  Description goes here.
@@ -115,7 +115,8 @@ function! comment#CreateDoxyFunction()
 	call add(res, ' */')
 
 	call append(line('.')-1, res)
-	call search('Brief goes here', 'b')
+	execute $'normal! k={len(res)}k'
+	call search('Brief goes here', '')
 endfunction
 
 function! comment#CreateDoxyFile()
@@ -145,4 +146,5 @@ function! comment#DisableCommenting()
 	nunmap <leader>uu
 	vunmap <leader>u
 endfunction
+
 

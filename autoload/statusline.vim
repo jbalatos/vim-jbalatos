@@ -17,3 +17,4 @@ function! statusline#SetStatusLine()
 	set statusline+=%#Statusline#
 	set statusline+=\ %l\:%c\ \(%L\)
 endfunction
+

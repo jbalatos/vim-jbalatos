@@ -1,3 +1,8 @@
+if exists('loaded_enclose')
+	finish
+endif
+let g:loaded_enclose=1
+
 function! enclose#GetClosing(str)
 	if a:str == '('
 		return ')'
@@ -51,16 +56,17 @@ function! enclose#DeleteEnclosing()
 	endif
 	let y=enclose#GetClosing(x)
 
-	let cur = getpos('.')[1:3]
-	if search(y, 'cnz') == 0 || search(x, 'cnbz') == 0
+	let cur = getcurpos()[1:3]
+	if search(y, 'cn') == 0 || search(x, 'cnb') == 0
 		return
 	endif
 
-	call search(y, 'csz')
-	execute $'normal! {strlen(y)}x'
+	call search(y, 'cs')
+	execute $'normal! {strlen(y)}"_x'
 	call cursor(cur)
-	call search(x, 'csbz')
-	execute $'normal! {strlen(x)}x'
+	call search(x, 'csb')
+	execute $'normal! {strlen(x)}"_x'
+	call cursor(cur)
 endfunction
 
 function! enclose#ChangeEnclosing(...)
@@ -73,13 +79,14 @@ function! enclose#ChangeEnclosing(...)
 	let y1=enclose#GetClosing(x1)
 
 	let cur = getpos('.')[1:3]
-	if search(y0, 'cnz') == 0 || search(x0, 'cnbz') == 0
+	if search(y0, 'cn') == 0 || search(x0, 'cnb') == 0
 		return
 	endif
 
-	call search(y0, 'csz')
+	call search(y0, 'cs')
 	execute $'normal! {strlen(y0)}xi{y1}'
 	call cursor(cur)
-	call search(x0, 'csbz')
+	call search(x0, 'csb')
 	execute $'normal! {strlen(x0)}xi{x1}'
 endfunction
+

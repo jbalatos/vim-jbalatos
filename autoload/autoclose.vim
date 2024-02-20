@@ -24,9 +24,9 @@ function! autoclose#SetGenericAutoclose() "{{{
 	inoremap <expr> )  strpart(getline('.'), col('.')-1, 1) == ")" ? "\<Right>" : ")"
 	inoremap <expr> ]  strpart(getline('.'), col('.')-1, 1) == "]" ? "\<Right>" : "]"
 	inoremap <expr> }  strpart(getline('.'), col('.')-1, 1) == "}" ? "\<Right>" : "}"
-inoremap <expr> */ strpart(getline('.'), col('.')-1, 2) == "*/" ? "\<Right>" : "*/"
 
 endfunction "}}}
+
 
 function! autoclose#UnsetGenericAutoclose() "{{{
 	" General autoclose rules (with/without space)
@@ -52,9 +52,11 @@ function! autoclose#UnsetHTMLAutoclose()
 endfunction
 
 function! autoclose#UnsetVimAutoclose()
+	inoremap <expr> "  strpart(getline('.'), col('.')-1, 1) == "\"" ? "\<Right>" : "\"\"\<Left>"
 endfunction
 
 function! autoclose#SetVimAutoclose()
+	iunmap <expr> "
 endfunction
 
 function! autoclose#AddLatexEnv()
@@ -85,6 +87,4 @@ function! autoclose#UnsetLatexAutoclose()
 	iunmap \)
 	iunmap \]
 endfunction
-
-
 
