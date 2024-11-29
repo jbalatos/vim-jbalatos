@@ -48,13 +48,13 @@ inline static char* scanstring (int len)
 	while (*ch == ' ' || *ch == '\n' || *ch == '\t');
 	while (len--)
 		*(ch++) = getchar();
-	*ch = '0';
+	*ch = '\0';
 	return res;
 }
 
 inline static void printstring (char *ch, char end = '\n')
 {
-	while (*ch != '0')
+	while (*ch != '\0')
 		putchar(*(ch++));
 	putchar(end);
 }
