@@ -7,7 +7,7 @@ inline static int scanint ()/*{{{*/
 
 	do
 		c = getchar();
-	while (c != '-' && (c < '0' && '9' < c));
+	while (c != '-' && (c < '0' || '9' < c));
 	
 	if (c == '-')
 		sign = true, c = getchar();
@@ -27,7 +27,7 @@ inline static long long scanlong ()
 
 	do
 		c = getchar();
-	while (c != '-' && (c < '0' && '9' < c));
+	while (c != '-' && (c < '0' || '9' < c));
 	
 	if (c == '-')
 		sign = true, c = getchar();
